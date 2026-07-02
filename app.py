@@ -7,7 +7,8 @@ A single-file Streamlit app that helps students:
   3. Generate quizzes (MCQs) on demand
   4. Generate flashcards on demand
 
-Powered by the OpenAI API.
+Powered by the Groq API (free, no credit card required) using the
+OpenAI-compatible SDK.
 
 Run locally:
     streamlit run app.py
@@ -35,30 +36,31 @@ st.set_page_config(
     layout="wide",
 )
 
-DEFAULT_MODEL = "gpt-4o-mini"
+# Groq's API is a free, OpenAI-compatible endpoint — no billing required.
+# Get a free key at https://console.groq.com/keys
+GROQ_BASE_URL = "https://api.groq.com/openai/v1"
+DEFAULT_MODEL = "llama-3.3-70b-versatile"
 
 
 def get_client() -> OpenAI:
-    """Create an OpenAI client using the key from session, env, or secrets."""
-    api_key = (
-        st.session_state.get("api_key")
-        or os.getenv("OPENAI_API_KEY")
-        or st.secrets.get("OPENAI_API_KEY", None)
-        if hasattr(st, "secrets")
-        else None
-    )
-    if not api_key:
-        api_key = st.session_state.get("api_key") or os.getenv("OPENAI_API_KEY")
+    """Create an OpenAI-compatible client pointed at Groq, using the key
+    from session state, environment variable, or Streamlit secrets."""
+    api_key = st.session_state.get("api_key") or os.getenv("GROQ_API_KEY")
+    if not api_key and hasattr(st, "secrets"):
+        try:
+            api_key = st.secrets.get("GROQ_API_KEY", None)
+        except Exception:
+            api_key = None
     if not api_key:
         return None
-    return OpenAI(api_key=api_key)
+    return OpenAI(api_key=api_key, base_url=GROQ_BASE_URL)
 
 
 def call_openai(system_prompt: str, user_prompt: str, json_mode: bool = False) -> str:
     """Send a chat completion request and return the text (or JSON string)."""
     client = get_client()
     if client is None:
-        st.error("No OpenAI API key found. Add one in the sidebar or a .env file.")
+        st.error("No Groq API key found. Add one in the sidebar or a .env file.")
         st.stop()
 
     kwargs = {}
@@ -126,19 +128,23 @@ with st.sidebar:
     st.caption("Your AI-powered study companion")
 
     st.subheader("⚙️ Settings")
-    default_key = os.getenv("OPENAI_API_KEY", "")
+    default_key = os.getenv("GROQ_API_KEY", "")
     api_key_input = st.text_input(
-        "OpenAI API Key",
+        "Groq API Key (free)",
         value=st.session_state.get("api_key", default_key),
         type="password",
-        help="Get a key at https://platform.openai.com/api-keys. "
-        "You can also set OPENAI_API_KEY in a .env file instead.",
+        help="Get a free key (no credit card) at https://console.groq.com/keys. "
+        "You can also set GROQ_API_KEY in a .env file instead.",
     )
     st.session_state["api_key"] = api_key_input
 
     model_choice = st.selectbox(
         "Model",
-        ["gpt-4o-mini", "gpt-4o", "gpt-4-turbo", "gpt-3.5-turbo"],
+        [
+            "llama-3.3-70b-versatile",
+            "llama-3.1-8b-instant",
+            "gemma2-9b-it",
+        ],
         index=0,
     )
     st.session_state["model"] = model_choice

@@ -10,7 +10,8 @@ online gives long or irrelevant results, and teachers aren't always available.
 - 🗂️ **Generates flashcards** with a flip-card review interface
 
 Built as a single-file [Streamlit](https://streamlit.io/) app powered by the
-[OpenAI API](https://platform.openai.com/).
+free [Groq API](https://console.groq.com/) (OpenAI-compatible, no credit card
+required).
 
 ## Demo
 
@@ -28,7 +29,7 @@ Built as a single-file [Streamlit](https://streamlit.io/) app powered by the
 ## Tech Stack
 
 - **Frontend + Backend:** [Streamlit](https://streamlit.io/) (Python)
-- **AI:** [OpenAI API](https://platform.openai.com/docs/api-reference) (`gpt-4o-mini` by default, configurable)
+- **AI:** [Groq API](https://console.groq.com/) — free, OpenAI-compatible endpoint (`llama-3.3-70b-versatile` by default, configurable)
 - **PDF parsing:** [pypdf](https://pypi.org/project/pypdf/)
 
 ## Getting Started
@@ -48,7 +49,10 @@ source venv/bin/activate      # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 3. Add your OpenAI API key
+### 3. Add your free Groq API key
+
+Get a free key (no credit card required) at
+[console.groq.com/keys](https://console.groq.com/keys).
 
 Copy `.env.example` to `.env` and add your key:
 
@@ -57,7 +61,7 @@ cp .env.example .env
 ```
 
 ```
-OPENAI_API_KEY=sk-your-key-here
+GROQ_API_KEY=gsk-your-key-here
 ```
 
 Alternatively, you can paste your API key directly into the sidebar when the
@@ -78,9 +82,9 @@ This app is ready to deploy for free on [Streamlit Community Cloud](https://stre
 1. Push this repo to GitHub.
 2. Go to [share.streamlit.io](https://share.streamlit.io) and connect your repo.
 3. Set `app.py` as the entry point.
-4. Add `OPENAI_API_KEY` under **App settings → Secrets**:
+4. Add `GROQ_API_KEY` under **App settings → Secrets**:
    ```toml
-   OPENAI_API_KEY = "sk-your-key-here"
+   GROQ_API_KEY = "gsk-your-key-here"
    ```
 5. Deploy 🎉
 
